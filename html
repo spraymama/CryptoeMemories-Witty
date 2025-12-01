@@ -1,0 +1,89 @@
+<html>
+　<head>
+    <script src="https://aframe.io/releases/1.4.2/aframex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script>
+    //ウェブページのHTMLを最後まで読んだ直後のタイミング
+    document.addEventListener("DOMContentLoaded", function() {
+      //AFRAMEのa-entity処理
+      AFRAME.registerComponent("mytarget", {
+        //初期設定
+        init: function () {
+          let video = document.getElementById("video"); //動画ファイルタグ
+          let asset_video = document.getElementById("asset_arVideo"); //動画のアセットファイル
+          let asset_thumbnail = document.getElementById("asset_thumbnail-button"); //画像のアセットファイル
+          //画像の認証が確認されたら
+          this.el.addEventListener("targetFound", (event) => {
+            asset_thumbnail.setAttribute("visible", true);  //画像のアセットファイルを表示
+          });
+          //画像の認証が解除されたら
+          this.el.addEventListener("targetLost", (event) => {
+            asset_thumbnail.setAttribute("visible", false); //画像のアセットファイルを非表示
+          });
+          //画像のアセットファイルをクリック
+          asset_thumbnail.addEventListener("click", (event) => {
+            asset_thumbnail.setAttribute("visible", false); //画像のアセットファイルを非表示
+            asset_video.setAttribute("visible", true);  //動画のアセットファイルを表示
+            video.play(); //動画再生
+          });
+          //動画が最後まで再生されたら
+          video.addEventListener("pause", (event) => {
+            asset_thumbnail.setAttribute("visible", true);  //画像のアセットファイルを表示
+            asset_video.setAttribute("visible", false); //動画のアセットファイルを非表示
+          });
+        },
+      });
+    });
+    </script>
+  </head>
+  <!-- 右クリック禁止、メニュー非表示 -->
+  <body onCopy="return false;" oncontextmenu="return false;">
+    <!--
+      Mind-ARの参考サイト
+      https://hiukim.github.io/mind-ar-js-doc/quick-start/overview
+
+        a-scene に mindar-image 属性を追加しマーカーファイル（.mindファイル）のパスを記載
+        https://hiukim.github.io/mind-ar-js-doc/examples/events-handling/
+        ・mindar-image
+          これはMindAR専用の引数です。
+          『Mind-ARでの画像認識ファイルを作成するサイト』
+          https://hiukim.github.io/mind-ar-js-doc/tools/compile/
+    -->
+    <a-scene
+      mindar-image="imageTargetSrc: https://cdn.glitch.global/1e42909a-a904-49ef-bf85-eeb5a61bf4ae/spmamv.mind?v=1710999835276"
+      renderer="colorManagement: false, physicallyCorrectLights"
+    >
+      <!--
+          カメラの設定
+
+          look-controls
+            カメラの位置情報
+      -->
+      <a-camera
+        position="0 0 0"
+        look-controls="enabled: false"
+        cursor="fuse: false; rayOrigin: mouse;"
+        raycaster="far: 10000; objects: .clickable"
+      >
+      </a-camera>
+      <!--　使用する素材 -->
+      <a-assets>
+        <video id="video" src="https://cdn.glitch.me/1e42909a-a904-49ef-bf85-eeb5a61bf4ae/spray%20monster%20mv.mov?v=1710999009924"></video>
+      </a-assets>
+      <!--
+        認証時のターゲット
+        .mindファイルで認証した画像が複数ある場合、targetIndexが0、1、2となる
+      -->
+      <a-entity id="mytarget" mytarget="" mindar-image-target="targetIndex: 0">
+        <!-- 認証時表示される画像 -->
+        <a-entity id="asset_thumbnail-panel" position="0 0 0" scale="1 1 1">
+          <a-image id="asset_thumbnail-button" class="clickable" src="https://cdn.glitch.me/1e42909a-a904-49ef-bf85-eeb5a61bf4ae/thumbnail.png?v=1710999569387" alpha-test="0.5" position="0 0 0" height="1" width="1" material="" geometry="" visible="false">
+        </a-entity>
+        <!-- 画像がクリックされると表示される動画 -->
+        <a-entity id="asset_arVideo-panel" position="0 0 0" scale="1 1 1">
+          <a-video id="asset_arVideo" src="#video" alpha-test="0.5" position="0 0 0" height="1" width="1" material="" geometry="" visible="false"></a-video>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
